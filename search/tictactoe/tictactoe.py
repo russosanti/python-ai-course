@@ -78,7 +78,7 @@ def winner(board):
             win = check_diagonal_win(board, row_n, 0, symbol)
             if win is not None:
                 return win
-
+        # Check other simbols in column
         for column_n in range(1, len(row)):
             # If symbol is Emoty, we skip til a symbol is found
             if row[column_n] is EMPTY:
@@ -93,18 +93,19 @@ def winner(board):
                     symbol = row[column_n]
                     consecutive = 1
 
+                # Check diagonal for each symbol
                 win = check_diagonal_win(board, row_n, column_n, symbol)
                 if win is not None:
                     return win
 
         row_n = row_n + 1
-        consecutive = 0
 
     # Last check to make is horizontal win
     return check_vertical_win(board)
 
 
 def terminal(board):
+    # Used created function to see if is terminal board
     t, w = terminal_and_winner(board)
     return t
 
@@ -113,25 +114,30 @@ def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
+    # Use created functions to get winner and determine utility of that player
     w = winner(board)
     return player_utility(w)
 
 
 def minimax(board):
+    # Wrapper function to return only the perfect move
     move, value = minimax_value(board, -math.inf, math.inf)
     return move
 
 
+# Minimax function that returns move and utility + accepts alpha beta pruning variables
 def minimax_value(board, alpha, beta):
     """
     Returns the optimal action for the current player on the board.
     """
+    # If terminal, return value
     t, w = terminal_and_winner(board)
     if t:
         return None, player_utility(w)
 
     moves = actions(board)
     play = None
+    # Maximizing player. Compares with alpha for pruning
     if player(board) == X:
         for move in moves:
             _, value = minimax_value(result(board, move), alpha, beta)
@@ -141,8 +147,8 @@ def minimax_value(board, alpha, beta):
             if beta <= alpha:
                 return play, alpha
         return play, alpha
-
     else:
+        # Min player optimal move. Compares with beta for pruning
         for move in moves:
             _, value = minimax_value(result(board, move), alpha, beta)
             if value < beta:
@@ -154,11 +160,14 @@ def minimax_value(board, alpha, beta):
 
 
 def terminal_and_winner(board):
+    # Gets winner
     w = winner(board)
 
+    # If winner is either X or O game is over
     if w is not None:
         return True, w
 
+    # If no winner, it could be a tie, or a move remaining
     for row in board:
         for cell in row:
             if cell is EMPTY:
@@ -167,10 +176,12 @@ def terminal_and_winner(board):
     return True, None
 
 
+# Action exception to throw on code
 class ActionException(Exception):
     pass
 
 
+# Board exception thrown on board (board dimension errors)
 class BoardException(Exception):
     pass
 
@@ -184,6 +195,7 @@ def get_cell(board, action):
     return row[action[1]]
 
 
+# Check winner on both diagonal and inverse diagonal
 def check_diagonal_win(board, row_n, column_n, symbol):
     # Check diagonal win
     max_row_diag_check = row_n + CONSECUTIVETOWIN - 1
@@ -211,6 +223,7 @@ def check_diagonal_win(board, row_n, column_n, symbol):
     return None
 
 
+# Check win on vertical columns
 def check_vertical_win(board):
     # Check winner vertically
     for column_n in range(len(board[0])):
@@ -229,6 +242,7 @@ def check_vertical_win(board):
                 consecutive = 1
 
 
+# Returns player_utility values
 def player_utility(p):
     if p == X:
         return 1
