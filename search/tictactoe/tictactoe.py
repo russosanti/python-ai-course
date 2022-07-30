@@ -118,11 +118,11 @@ def utility(board):
 
 
 def minimax(board):
-    move, value = minimax_value(board)
+    move, value = minimax_value(board, -math.inf, math.inf)
     return move
 
 
-def minimax_value(board):
+def minimax_value(board, alpha, beta):
     """
     Returns the optimal action for the current player on the board.
     """
@@ -131,25 +131,26 @@ def minimax_value(board):
         return None, player_utility(w)
 
     moves = actions(board)
+    play = None
     if player(board) == X:
-        m = -math.inf
-        play = None
         for move in moves:
-            _, value = minimax_value(result(board, move))
-            if value > m:
-                m = value
+            _, value = minimax_value(result(board, move), alpha, beta)
+            if value > alpha:
+                alpha = value
                 play = move
-        return play, m
+            if beta <= alpha:
+                return play, alpha
+        return play, alpha
 
     else:
-        m = math.inf
-        play = None
         for move in moves:
-            _, value = minimax_value(result(board, move))
-            if value < m:
-                m = value
+            _, value = minimax_value(result(board, move), alpha, beta)
+            if value < beta:
+                beta = value
                 play = move
-        return play, m
+            if beta <= alpha:
+                return play, beta
+        return play, beta
 
 
 def terminal_and_winner(board):
