@@ -165,7 +165,7 @@ class MinesweeperAI():
         self.mines.add(cell)
         for sentence in self.knowledge:
             sentence.mark_mine(cell)
-        logging.debug(cell + " marked as mine")
+        logging.debug(str(cell) + " marked as mine")
 
     def mark_safe(self, cell):
         """
@@ -175,7 +175,7 @@ class MinesweeperAI():
         self.safes.add(cell)
         for sentence in self.knowledge:
             sentence.mark_safe(cell)
-        logging.debug(cell + " marked as safe")
+        logging.debug(str(cell) + " marked as safe")
 
     def add_knowledge(self, cell, count):
         """
@@ -223,10 +223,21 @@ class MinesweeperAI():
                         new_sentence.add((i, j))
 
         # Add generated Sentence to Knowledge
-        self.knowledge.append(Sentence(new_sentence, count))
+        nsentence = Sentence(new_sentence, count)
+        self.knowledge.append(nsentence)
         logging.debug("Sentence added to KB: {new_sentence}")
 
-        raise NotImplementedError
+        inference = []
+        for s in self.knowledge:
+            if s != nsentence:
+                if s.cells.issuperset(nsentence.cells):
+                    inference = self.make_inferences(inference, s.cells - nsentence.cells, s.count, nsentence.count)
+                else:
+                    inference = self.make_inferences(inference, nsentence.cells - s.cells, s.count, nsentence.count)
+
+        self.knowledge.extend(inference)
+
+        self.clean()
 
     def make_safe_move(self):
         """
@@ -251,4 +262,45 @@ class MinesweeperAI():
             1) have not already been chosen, and
             2) are not known to be mines
         """
-        raise NotImplementedError
+        moves = set()
+        for i in range(self.height):
+            for j in range(self.width):
+                if (i, j) not in self.mines and (i, j) not in self.moves_made:
+                    moves.add((i, j))
+
+        if len(moves) == 0:
+            return None
+
+        return random.choice(tuple(moves))
+
+    def make_inferences(self, inferences, nset, sentencesCount, newSentencesCount):
+        # Make inference for safes
+        if sentencesCount == newSentencesCount:
+            for safes in nset:
+                self.mark_safe(safes)
+        # Make inferences for mines
+        elif len(nset) == abs(sentencesCount - newSentencesCount):
+            for mines in nset:
+                self.mark_mine(mines)
+        # Inferences
+        else:
+            inferences.append(
+                Sentence(nset, abs(sentencesCount - newSentencesCount))
+            )
+
+        return inferences
+
+    def clean(self):
+        k = []
+        for s in self.knowledge:
+            if s not in k:
+                if s.known_mines():
+                    for mine in s.known_mines().copy():
+                        self.mark_mine(mine)
+                elif s.known_safes():
+                    for safe in s.known_safes().copy():
+                        self.mark_safe(safe)
+                else:
+                    k.append(s)
+
+        self.knowledge = k
