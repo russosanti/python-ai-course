@@ -204,10 +204,10 @@ class MinesweeperAI():
             mini = cell[0] - 1
         if cell[1] > 0:
             minj = cell[1] - 1
-        if cell[0] < self.height:
-            mini = cell[0] + 2
-        if cell[1] < self.width:
-            minj = cell[1] + 2
+        if cell[0] < self.height - 1:
+            maxi = cell[0] + 2
+        if cell[1] < self.width - 1:
+            maxj = cell[1] + 2
 
         new_sentence = set()
 
@@ -232,7 +232,7 @@ class MinesweeperAI():
             if s != nsentence:
                 if s.cells.issuperset(nsentence.cells):
                     inference = self.make_inferences(inference, s.cells - nsentence.cells, s.count, nsentence.count)
-                else:
+                elif nsentence.cells.issuperset(s.cells):
                     inference = self.make_inferences(inference, nsentence.cells - s.cells, s.count, nsentence.count)
 
         self.knowledge.extend(inference)
@@ -248,7 +248,7 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        pending_moves = self.safes = self.moves_made
+        pending_moves = self.safes - self.moves_made
         # No safe moves left
         if len(pending_moves) == 0:
             return None
