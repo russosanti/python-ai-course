@@ -111,9 +111,33 @@ def iterate_pagerank(corpus, damping_factor):
     PageRank values should sum to 1.
     """
     distribution = {x: 1 / len(corpus) for x in corpus.keys()}
-    targetError= 0.001
+    target_error = 0.001
+    distribution, error_target = calculate_page_rank(corpus, distribution, damping_factor, target_error)
+
+    while not error_target:
+        distribution, error_target = calculate_page_rank(corpus, distribution, damping_factor, target_error)
+
+    return distribution
 
 
+def calculate_page_rank(corpus, distribution, d, target_error):
+
+    p = (1 - d) / len(corpus)
+    error_threshold = True
+
+    for name in corpus.keys():
+        link_prob = 0
+        for page in corpus:
+            links = corpus[page]
+            if name in links:
+                link_prob += distribution[page] / len(links)
+
+        page_prob = p + d * link_prob
+        if abs(distribution[name] - page_prob) >= target_error:
+            error_threshold = False
+        distribution[name] = page_prob
+
+    return distribution, error_threshold
 
 
 if __name__ == "__main__":
