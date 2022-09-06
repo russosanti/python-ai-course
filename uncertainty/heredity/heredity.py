@@ -157,7 +157,6 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                 p = dad_inherit_prob * mom_inherit_prob
             elif genes == 1:
                 p = (1 - dad_inherit_prob) * mom_inherit_prob + (1 - mom_inherit_prob) * dad_inherit_prob
-                # p = dad_inherit_prob + mom_inherit_prob - (dad_inherit_prob * mom_inherit_prob)
             else:
                 p = (1 - dad_inherit_prob) * (1 - mom_inherit_prob)
 
