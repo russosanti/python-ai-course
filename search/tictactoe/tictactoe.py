@@ -124,7 +124,6 @@ def minimax(board):
     move, value = minimax_value(board, -math.inf, math.inf)
     return move
 
-
 # Minimax function that returns move and utility + accepts alpha beta pruning variables
 def minimax_value(board, alpha, beta):
     """

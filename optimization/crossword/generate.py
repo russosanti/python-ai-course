@@ -76,7 +76,7 @@ class CrosswordCreator():
                 if self.crossword.structure[i][j]:
                     draw.rectangle(rect, fill="white")
                     if letters[i][j]:
-                        w, h = draw.textsize(letters[i][j], font=font)
+                        _, _, w, h = draw.textbbox((0, 0), letters[i][j], font=font)
                         draw.text(
                             (rect[0][0] + ((interior_size - w) / 2),
                              rect[0][1] + ((interior_size - h) / 2) - 10),

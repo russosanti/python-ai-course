@@ -1,4 +1,3 @@
-import itertools
 import logging
 import random
 
@@ -304,3 +303,4 @@ class MinesweeperAI():
                     k.append(s)
 
         self.knowledge = k
+

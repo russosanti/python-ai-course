@@ -150,7 +150,7 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         if mom is None and dad is None:
             p = PROBS['gene'][genes]
         else:
-            mom_inherit_prob = parent_prob(mom, one_gene,  two_genes)
+            mom_inherit_prob = parent_prob(mom, one_gene, two_genes)
             dad_inherit_prob = parent_prob(dad, one_gene, two_genes)
 
             if genes == 2:
@@ -164,26 +164,6 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         joint_p *= p
 
     return joint_p
-
-
-def parent_prob(parent_name, one_gene, two_genes):
-    """ Calculates de prob of the parent having the gene"""
-
-    if parent_name in two_genes:
-        return 1 - PROBS['mutation']
-    elif parent_name in one_gene:
-        return 0.5  # 0.5 - prob mutation + prob mutation of other gene = 0.5
-    else:
-        return PROBS['mutation']
-
-
-def get_person_genes(person, one_gene, two_genes):
-    if person in two_genes:
-        return 2
-    elif person in one_gene:
-        return 1
-    else:
-        return 0
 
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
@@ -206,12 +186,33 @@ def normalize(probabilities):
     is normalized (i.e., sums to 1, with relative proportions the same).
     """
     for person in probabilities:
-        gene_total = sum(probabilities[person]['gene'].values())
-        trait_total = sum(probabilities[person]['trait'].values())
+        probabilities[person]['gene'] = norm_helper(probabilities[person]['gene'])
+        probabilities[person]['trait'] = norm_helper(probabilities[person]['trait'])
 
-        probabilities[person]['gene'] = {k: v / gene_total for k, v in probabilities[person]['gene'].items()}
-        probabilities[person]['trait'] = {k: v / trait_total for k, v in probabilities[person]['trait'].items()}
 
+def norm_helper(dist):
+    total = sum(dist.values())
+    return {k: v / total for k, v in dist.items()}
+
+
+def parent_prob(parent_name, one_gene, two_genes):
+    """ Calculates de prob of the parent having the gene"""
+
+    if parent_name in two_genes:
+        return 1 - PROBS['mutation']
+    elif parent_name in one_gene:
+        return 0.5  # 0.5 - prob mutation + prob mutation of other gene = 0.5
+    else:
+        return PROBS['mutation']
+
+
+def get_person_genes(person, one_gene, two_genes):
+    if person in two_genes:
+        return 2
+    elif person in one_gene:
+        return 1
+    else:
+        return 0
 
 if __name__ == "__main__":
     main()

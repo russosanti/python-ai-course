@@ -57,7 +57,6 @@ def transition_model(corpus, page, damping_factor):
     linked to by `page`. With probability `1 - damping_factor`, choose
     a link at random chosen from all pages in the corpus.
     """
-
     distribution = dict()
 
     if len(corpus[page]) == 0:
@@ -93,6 +92,7 @@ def sample_pagerank(corpus, damping_factor, n):
     for i in range(1, n + 1):
         sample = transition_model(corpus, page, damping_factor)
         # Calculate new average
+        # (current_avg * current total + new value) / new total
         distribution = {k: (v * (i - 1) + sample[k]) / i for k, v in distribution.items()}
 
         page = random.choices(list(distribution), list(distribution.values()), k=1)[0]
@@ -111,10 +111,10 @@ def iterate_pagerank(corpus, damping_factor):
     """
     distribution = {x: 1 / len(corpus) for x in corpus.keys()}
     target_error = 0.001
-    distribution, error_target = calculate_page_rank(corpus, distribution, damping_factor, target_error)
+    distribution, threshold = calculate_page_rank(corpus, distribution, damping_factor, target_error)
 
-    while not error_target:
-        distribution, error_target = calculate_page_rank(corpus, distribution, damping_factor, target_error)
+    while not threshold:
+        distribution, threshold = calculate_page_rank(corpus, distribution, damping_factor, target_error)
 
     return distribution
 
