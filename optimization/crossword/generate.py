@@ -1,6 +1,7 @@
 import sys
 
 from crossword import *
+from optimization.crossword.crossword import Crossword
 
 
 class CrosswordCreator():
@@ -99,7 +100,12 @@ class CrosswordCreator():
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        raise NotImplementedError
+
+        for var in self.crossword.variables:
+            self.domains[var] = {
+                word for word in self.domains[var]
+                if len(word) == var.length
+            }
 
     def revise(self, x, y):
         """
@@ -110,7 +116,21 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        raise NotImplementedError
+        overlap = self.crossword.overlaps[x, y]
+        if overlap is None:
+            return False
+        (i, j) = overlap
+        to_remove = set()
+
+        for word in self.domains[x]:
+            if not any (word != wordy and word[i] == wordy[j] for wordy in self.domains[y]):
+                to_remove.add(word)
+
+        if to_remove:
+            self.domains[x] -= to_remove
+            return True
+
+        return False
 
     def ac3(self, arcs=None):
         """
@@ -121,7 +141,19 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        raise NotImplementedError
+        if arcs is None:
+            arcs = self.generate_arc()
+
+        while arcs:
+            x, y = arcs.pop()
+            if self.revise(x, y):
+                if not self.domains[x]:
+                    return False
+                for var in self.crossword.neighbors(x):
+                    if var != y:
+                        arcs.append((var, x))
+
+        return True
 
     def assignment_complete(self, assignment):
         """
@@ -166,6 +198,13 @@ class CrosswordCreator():
         If no assignment is possible, return None.
         """
         raise NotImplementedError
+
+    def generate_arc(self):
+        return [
+            (x, y)
+            for x in self.crossword.variables
+            for y in self.crossword.neighbors(x)
+        ]
 
 
 def main():
