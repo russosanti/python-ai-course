@@ -2,7 +2,7 @@ import copy
 import math
 import sys
 
-from crossword.crossword import Crossword, Variable
+from optimization.crossword.crossword import Crossword, Variable
 
 
 class CrosswordCreator():
