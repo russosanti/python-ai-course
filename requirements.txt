@@ -2,3 +2,4 @@ pillow
 pygame
 numpy
 pomegranate
+scikit-learn
