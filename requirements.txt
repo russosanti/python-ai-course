@@ -3,3 +3,9 @@ pygame
 numpy
 pomegranate
 scikit-learn
+opencv-python
+tensorflow
+nltk
+transformers==4.54.1
+tf-keras
+safetensors
